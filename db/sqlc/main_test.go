@@ -1,15 +1,16 @@
 package db
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"os"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 )
 
-var testQueries *Queries
+var testStore Store
 
 const (
 	dbDriver = "postgres"
@@ -17,12 +18,14 @@ const (
 )
 
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dbDriver, dbSource)
+	// conn, err := sql.Open(dbDriver, dbSource)
+
+	connPool, err := pgxpool.New(context.Background(), dbSource)
 	if err != nil {
 		log.Fatal("Cannot conntect to the db", err)
 	}
 
-	testQueries = New(conn)
+	testStore = NewStore(connPool)
 
 	os.Exit(m.Run())
 }
